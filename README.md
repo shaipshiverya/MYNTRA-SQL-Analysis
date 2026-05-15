@@ -1,168 +1,217 @@
 # MYNTRA-SQL-Analysis
 SQL analysis of Myntra's product catalog uncovering  pricing trends, brand performance and rating insights  across Nike and Adidas using MySQL.
 
-🛍️ Myntra Product Data Analysis (SQL + Excel)
+---
 
-📌 Project Overview
+## 📂 Files in This Repo
+| File | Description |
+|------|-------------|
+| `PROJECT1SQL.sql` | All 16 SQL queries with comments |
+| `products.csv` | Raw Myntra product dataset |
 
-This project performs end-to-end data analysis on Myntra product data using SQL and Excel.
+---
 
-The objective is to simulate a real-world data analyst workflow by:
+## 🛠️ Tech Stack
+| Tool | Purpose |
+|------|---------|
+| MySQL | Querying & Analysis |
+| Excel | Data Cleaning & Visualization |
+| GitHub | Version Control |
 
-Cleaning and preparing data in Excel
+---
 
-Analyzing data using SQL
+## 🔄 Project Phases
 
-Creating insights and visualizations using Excel
+### 💰 Phase 1 — Price Intelligence
 
-💡 Business Problem
+#### 🏷️ Most & Least Expensive Products
+```sql
+-- Most Expensive
+SELECT * FROM products
+ORDER BY discounted_price DESC;
 
+-- Least Expensive
+SELECT * FROM products
+ORDER BY discounted_price ASC;
 
-E-commerce platforms like Myntra manage thousands of products across different brands and categories.
+-- Top 5 Most Expensive
+SELECT * FROM products
+ORDER BY discounted_price DESC LIMIT 5;
+```
 
-Key business questions:
-
-Q1.Which products are most and least expensive?
-
-Q2.Which products are most popular?
-
-Q3.How do brands like Nike and Adidas perform?
-
-Q4.What price range dominates the market?
-
-This project answers these using data-driven analysis.
-
-🎯 Objectives :
-1.Identify pricing trends (high vs low)
-
-2.Analyze product popularity using ratings
-
-3.Compare brand performance
-
-4.Segment products based on price range
-
-5.Generate actionable insights
-
-🛠️ Tools & Technologies :
-SQL (MySQL) → Data querying & analysis
-Excel → Data cleaning, pivot tables & visualization
-GitHub → Project hosting
-
-🔄 Project Workflow:
-Data Cleaning (Excel)
-
-Removed inconsistencies
-
-Formatted columns
-
-Prepared structured dataset
-
-Data Analysis (SQL):
-Filtering, sorting, ranking
-Aggregations and calculations
-Visualization (Excel)
-
-📂 Project Files
-myntra.sql → SQL queries
-products.csv → Dataset
-excel_analysis.xlsx → Excel cleaning 
-
-🔍 SQL Analysis : 
-
-🔹 Top 5 Most Expensive Products
-SELECT * FROM products 
-
-ORDER BY marked_price DESC 
-
-LIMIT 5;
-
-🔹 Most Popular Products (Weighted Score)
-
-SELECT product_name, rating, rating_count, 
-
-       (rating * rating_count) AS popularity_score
+#### 🎯 Offset Queries — Specific Rankings
+```sql
+-- 2nd Most Expensive
+SELECT product_name, rating,
+rating_count, discounted_price
 FROM products
+ORDER BY discounted_price DESC LIMIT 1,1;
 
-ORDER BY popularity_score DESC
-
-LIMIT 5;
-
-🔹 Worst Rated Nike Products
-
-SELECT product_name, rating
-
+-- 2nd Least Expensive
+SELECT product_name, rating,
+rating_count, discounted_price
 FROM products
+ORDER BY discounted_price ASC LIMIT 1,1;
 
-WHERE brand_tag = 'Nike' AND rating != 0
-
-ORDER BY rating ASC;
-
-🔹 Mid-Range Products (₹1000–₹2000)
-
-SELECT product_name, brand_tag, marked_price
-
+-- 10th Most Expensive
+SELECT product_name, rating,
+rating_count, discounted_price
 FROM products
+ORDER BY discounted_price DESC LIMIT 9,1;
+```
 
-WHERE marked_price BETWEEN 1000 AND 2000;
+---
 
-📊 Excel Analysis : 
+### ⭐ Phase 2 — Rating Intelligence
 
-Excel was used to enhance analysis through cleaning and visualization.
+#### 🔥 Weighted Popularity Score
+```sql
+-- Top 5 Products by Combined Rating
+SELECT product_name, rating, rating_count,
+    ROUND(rating * rating_count) AS comb_rating
+FROM products
+ORDER BY comb_rating DESC LIMIT 5;
+```
 
-🔧 Tasks Performed:
+#### 👟 Worst Rated Nike Products
+```sql
+-- Including zero ratings
+SELECT product_name, rating, rating_count,
+    ROUND(rating * rating_count) AS comb_rating
+FROM products
+WHERE brand_tag = 'nike'
+ORDER BY comb_rating ASC LIMIT 5;
 
-Data cleaning & formatting
+-- Excluding zero ratings (cleaner analysis)
+SELECT product_name, rating, rating_count,
+    ROUND(rating * rating_count) AS comb_rating
+FROM products
+WHERE brand_tag = 'nike'
+AND rating != 0
+ORDER BY comb_rating ASC LIMIT 5;
+```
 
-Price distribution analysis
+---
 
-Brand-wise comparison
+### 👕 Phase 3 — Category Deep Dive (Tshirts)
 
-📈 Key Insights:
-1.Most products fall in the ₹1000–₹2000 range
+#### 🏆 Top 10 Best Rated Nike & Adidas Tshirts
+```sql
+SELECT product_name, rating, rating_count,
+    brand_tag, discounted_price,
+    ROUND(rating * rating_count) AS comb_rating
+FROM products
+WHERE brand_tag IN ('nike','adidas')
+AND product_tag = 'tshirts'
+ORDER BY comb_rating DESC LIMIT 10;
+```
 
-2.Nike and Adidas dominate the t-shirt category
+#### 📉 Worst Rated Tshirts (Min 100 Reviews)
+```sql
+SELECT product_name, rating, rating_count,
+    brand_tag, discounted_price, product_link
+FROM products
+WHERE product_tag = 'tshirts'
+AND rating_count > 100
+ORDER BY rating ASC LIMIT 20;
+```
 
-3.Products with higher rating_count are more reliable
+#### 🔤 Alphabetical Sort — Last 10 Products
+```sql
+SELECT * FROM products
+ORDER BY product_name ASC LIMIT 10;
+```
 
-4. High price ≠ high rating
+---
 
-📊 SQL Output
+### 💸 Phase 4 — Price Segmentation
 
-SQL Output
+#### 🎯 Mid Range Products ₹1000–₹1200
+```sql
+SELECT product_name, rating,
+    rating_count, brand_tag, discounted_price
+FROM products
+WHERE brand_tag IN ('nike','adidas')
+    AND product_tag = 'tshirts'
+    AND discounted_price BETWEEN 1000 AND 1200
+ORDER BY brand_tag ASC,
+         discounted_price ASC;
+```
 
-📊 Key Insights
+#### 📊 Wider Range ₹1000–₹2000
+```sql
+SELECT product_name, rating,
+    rating_count, brand_tag, discounted_price
+FROM products
+WHERE brand_tag IN ('nike','adidas')
+    AND product_tag = 'tshirts'
+    AND discounted_price BETWEEN 1000 AND 2000
+ORDER BY discounted_price ASC,
+         brand_tag ASC;
+```
 
-1.Mid-range products dominate the market
+---
 
-2.Brand reputation plays a key role in ratings
+## 💡 Key Business Insights
 
-3.Popularity should be measured using rating × rating_count
+> 👟 **Nike** = Best performing brand with highest
+>    combined ratings & premium pricing power
+>
+> 📈 **Adidas** = Needs to grow in mid-range
+>    segment (₹1000–₹2000) to compete with Nike
+>
+> 👕 **Tshirts** = Most competitive & analyzed
+>    category on Myntra
+>
+> ⭐ **rating × rating_count** = Better popularity
+>    metric than raw rating alone
+>
+> 💰 **High price ≠ High rating** — Premium
+>    products don't always satisfy customers
+>
+> 🚀 **Recommendation: Adidas should improve
+>    product quality in tshirt segment** to
+>    close the gap with Nike
 
-4.Expensive products are not always highly rated
+---
 
-🚀 How to Run
-Create database:
+## 🧠 SQL Concepts Used
+| Concept | Used For |
+|---------|---------|
+| `ORDER BY + LIMIT` | Price Rankings |
+| `LIMIT x,1` | Offset-based Ranking |
+| `ROUND()` | Weighted Rating Score |
+| `WHERE + AND` | Multi-condition Filtering |
+| `IN ()` | Multi-brand Filtering |
+| `BETWEEN` | Price Range Segmentation |
+| `!=` | Excluding Zero Ratings |
 
+---
+
+## 🚀 How to Run
+```sql
+-- Step 1: Create Database
 CREATE DATABASE myntra;
-
 USE myntra;
 
-Import dataset (products.csv)
+-- Step 2: Import products.csv
 
-Run queries from:
+-- Step 3: Run PROJECT1SQL.sql
+```
 
-myntra.sql
+---
 
+## 🔮 Future Scope
+- 📊 Power BI Dashboard for brand comparison
+- 🐍 Python (Pandas) for deeper EDA
+- 🤖 ML-based product recommendation system
+- 📈 Price elasticity analysis
 
-👩‍💻 Author
+---
 
-Shaipshi Aspiring Data Analyst
+## 👩‍💻 About Me
+**Shaipshi** — Aspiring Data Analyst
+`SQL` `Python` `Power BI` `Excel`
 
-Skills: SQL | Excel | Python | Power BI
-
-🔗 Add your links:
-
-
-GitHub - https://github.com/shaipshiverya
-
-LinkedIn - https://www.linkedin.com/in/shaipshi-verya-1b918a162/
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue?logo=linkedin)](https://www.linkedin.com/in/shaipshi-verya-1b918a162/)
+[![GitHub](https://img.shields.io/badge/GitHub-Follow-black?logo=github)](https://github.com/shaipshiverya)
