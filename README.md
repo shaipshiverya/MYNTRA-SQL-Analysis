@@ -213,5 +213,5 @@ USE myntra;
 **Shaipshi** — Aspiring Data Analyst
 `SQL` `Python` `Power BI` `Excel`
 
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue?logo=linkedin)](https://www.linkedin.com/in/shaipshi-verya-1b918a162/)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue?logo=linkedin)](https://www.linkedin.com/in/shaipshi-1b918a162/)
 [![GitHub](https://img.shields.io/badge/GitHub-Follow-black?logo=github)](https://github.com/shaipshiverya)
